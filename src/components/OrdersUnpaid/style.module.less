@@ -1,0 +1,27 @@
+.buttonWrapper {
+	margin-bottom: 3rem;
+	:global {
+		.ant-btn-lg {
+			height: 42px;
+			font-size: 18px;
+			padding: 0 28px;
+			&:focus {
+				background-color: @primary-color;
+				color: white;
+			}
+		}
+	}
+}
+
+.form {
+	:global {
+		.ant-form-item-control-input-content {
+			display: flex;
+			justify-content: space-between;
+		}
+
+		.ant-form-item {
+			margin-bottom: 0;
+		}
+	}
+}
