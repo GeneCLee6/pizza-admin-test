@@ -21,7 +21,6 @@ const ComboTest = ({ name, values, prices, dishType }) => {
 
 	const combos = ["Combo 1", "Combo 2", "Combo 3"];
 	const drinkOptions = name === combos[0] ? CannedDrink : SoftDrink;
-	const chosenComboIndex = combos.indexOf(name);
 
 	const { useStandardPizza } = useDishes();
 	const { data: pizzaOptions } = useStandardPizza();
@@ -127,10 +126,11 @@ const ComboTest = ({ name, values, prices, dishType }) => {
 						const toppings = [...rest.value];
 						values.extraToppingsPricesCombo1 = toppings.map(
 							(toppingName) => {
-								const pizzaExtraTopping = pizzaExtraToppings?.filter(
-									(topping) =>
-										topping.toppingName === toppingName
-								)[0];
+								const pizzaExtraTopping =
+									pizzaExtraToppings?.filter(
+										(topping) =>
+											topping.toppingName === toppingName
+									)[0];
 								if (values.secondHalfPizzaCombo1) {
 									const price =
 										retrieveItemPrice(
@@ -225,10 +225,11 @@ const ComboTest = ({ name, values, prices, dishType }) => {
 												values.size
 											);
 
-											const firstHalfPrice = retrieveItemPrice(
-												firstHalfPizza[0].prices,
-												values.size
-											);
+											const firstHalfPrice =
+												retrieveItemPrice(
+													firstHalfPizza[0].prices,
+													values.size
+												);
 											const addPrice =
 												itemPrice - firstHalfPrice;
 											return (
@@ -286,20 +287,20 @@ const ComboTest = ({ name, values, prices, dishType }) => {
 					{({ field }) => {
 						const { onChange, ...rest } = field;
 						const toppings = [...rest.value];
-						values.secondHalfPizzaExtraToppingsPricesCombo1 = toppings.map(
-							(toppingName) => {
-								const pizzaExtraTopping = pizzaExtraToppings?.filter(
-									(topping) =>
-										topping.toppingName === toppingName
-								)[0];
+						values.secondHalfPizzaExtraToppingsPricesCombo1 =
+							toppings.map((toppingName) => {
+								const pizzaExtraTopping =
+									pizzaExtraToppings?.filter(
+										(topping) =>
+											topping.toppingName === toppingName
+									)[0];
 								const price =
 									retrieveItemPrice(
 										pizzaExtraTopping.prices,
 										"large"
 									) / 2;
 								return price;
-							}
-						);
+							});
 						return (
 							<Checkbox.Group
 								{...rest}
@@ -395,7 +396,7 @@ const ComboTest = ({ name, values, prices, dishType }) => {
 			<Panel header="Upgrade Drink Selection" key="6">
 				<Field name="upgradeDrinks">
 					{({ field }) => {
-						const { onChange, ...rest } = field;
+						const { onChange } = field;
 						values.upgradeDrinkPrice =
 							values.upgradeDrinks.length * 2;
 						const itemPrice = 2;

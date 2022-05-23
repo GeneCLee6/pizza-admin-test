@@ -6,7 +6,6 @@ import {
 	Space,
 	Button,
 	InputNumber,
-	Tag,
 	Popconfirm,
 	Input,
 } from "antd";
@@ -22,9 +21,6 @@ import { GlobalContext } from "../../contexts/GlobalProvider";
 const { TextArea } = Input;
 
 const NewOrder = () => {
-	const {
-		contextValue: { cart },
-	} = useContext(GlobalContext);
 	const [form] = Form.useForm();
 	const {
 		dishes,
@@ -33,8 +29,6 @@ const NewOrder = () => {
 		setShowAddOrderDishModal,
 		showAddSideDishModal,
 		setShowAddSideDishModal,
-		handleAddDish,
-		orderTotalPrice,
 		handleToggleDishQuantity,
 		handleDeleteDish,
 		selectedSideDishItem,
@@ -49,7 +43,6 @@ const NewOrder = () => {
 
 	const {
 		contextValue: { totalPrice },
-		CLEAR_CART,
 	} = useContext(GlobalContext);
 
 	const columns = [

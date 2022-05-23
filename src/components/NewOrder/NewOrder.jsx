@@ -5,13 +5,11 @@ import {
 	Table,
 	Space,
 	Button,
-	InputNumber,
 	Popconfirm,
 	Input,
 	Row,
 	Col,
 	Select,
-	Grid,
 } from "antd";
 import { MinusOutlined, PlusOutlined, DeleteTwoTone } from "@ant-design/icons";
 import AddDishItem from "../Orders/AddDishItem";
@@ -19,10 +17,9 @@ import AddSideDishItem from "../Orders/AddSideDishItem";
 import useNewOrder from "src/hooks/useNewOrder";
 import Checkout from "src/components/Orders/Checkout";
 import { priceFormatter } from "src/utils/helpers";
-import { useContext, useState, useEffect } from "react";
-import { GlobalContext } from "../../contexts/GlobalProvider";
+import { useState, useEffect } from "react";
+
 import axios from "axios";
-import { element } from "prop-types";
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -54,7 +51,8 @@ const NewOrder = () => {
 	};
 
 	const [inputs, setInputs] = useState(formInputs);
-	const [isRenderAddressDropDown, setIsRenderAddressDropDown] = useState(false);
+	const [isRenderAddressDropDown, setIsRenderAddressDropDown] =
+		useState(false);
 	const [addressesFound, setAddressesFound] = useState([]);
 	const [totalPrice, setTotalPrice] = useState();
 
@@ -92,12 +90,12 @@ const NewOrder = () => {
 	};
 
 	useEffect(() => {
-		let sum = 0
-		dishes.map((element)=>{
-			sum += element.currentPrice * element.quantity
-		})
-		setTotalPrice(sum)
-	})
+		let sum = 0;
+		dishes.map((element) => {
+			sum += element.currentPrice * element.quantity;
+		});
+		setTotalPrice(sum);
+	}, [dishes]);
 
 	const columns = [
 		{
@@ -238,7 +236,7 @@ const NewOrder = () => {
 						<Popconfirm
 							title="确认删除该菜品?"
 							onConfirm={() => {
-								handleDeleteDish(record)
+								handleDeleteDish(record);
 							}}
 							okText="确定"
 							cancelText="取消"
@@ -262,15 +260,19 @@ const NewOrder = () => {
 				size="large"
 				name="createOrder"
 				onFinish={(value) => {
-					handleSubmitOrder(value, inputs.address)
-					setInputs("")
+					handleSubmitOrder(value, inputs.address);
+					setInputs("");
 				}}
 				layout="vertical"
 			>
 				<Row>
 					<Col span={6}>
-						<Form.Item name="PoD" label="Pick up or Delivery" required>
-							<Select >
+						<Form.Item
+							name="PoD"
+							label="Pick up or Delivery"
+							required
+						>
+							<Select>
 								<Option disabled selected>
 									Please Select
 								</Option>
@@ -280,12 +282,14 @@ const NewOrder = () => {
 						</Form.Item>
 
 						<Form.Item name="payMethod" label="Pay Method" required>
-							<Select >
+							<Select>
 								<Option disabled selected>
 									Please Select
 								</Option>
 								<Option value="cash">Pay by Cash</Option>
-								<Option value="pay over phone">Pay over Phone</Option>
+								<Option value="pay over phone">
+									Pay over Phone
+								</Option>
 							</Select>
 						</Form.Item>
 					</Col>
@@ -308,7 +312,10 @@ const NewOrder = () => {
 								type="text"
 								value={inputs.address}
 								onChange={(e) => {
-									handleInputsChange("address", e.target.value);
+									handleInputsChange(
+										"address",
+										e.target.value
+									);
 								}}
 							/>
 							{isRenderAddressDropDown && (
@@ -351,11 +358,11 @@ const NewOrder = () => {
 							pagination={false}
 							className="border border-bottom-0 mb-3"
 							onChange={() => {
-								let price = 0
-								dishes.forEach(element => {
-									price += element.currentPrice
-								})
-								setTotalPrice(price)
+								let price = 0;
+								dishes.forEach((element) => {
+									price += element.currentPrice;
+								});
+								setTotalPrice(price);
 							}}
 						/>
 					</>

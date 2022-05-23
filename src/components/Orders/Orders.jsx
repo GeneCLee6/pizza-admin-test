@@ -17,7 +17,6 @@ import useOrder from "src/hooks/useOrder";
 import usePrint from "src/hooks/usePrint";
 import { priceFormatter, throttle } from "src/utils/helpers";
 import classes from "./style.module.less";
-import { useState } from "react";
 import useOperations from "src/hooks/useOperation";
 
 const { TextArea } = Input;

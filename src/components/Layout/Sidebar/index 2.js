@@ -5,11 +5,8 @@ import { useSelector } from "react-redux";
 import { Menu } from "antd";
 import {
 	DashboardOutlined,
-	ApartmentOutlined,
 	ShoppingCartOutlined,
-	ExperimentOutlined,
 	ProfileOutlined,
-	TableOutlined,
 	FormOutlined,
 	SwapLeftOutlined,
 } from "@ant-design/icons";
@@ -17,7 +14,6 @@ import {
 const Sidebar = () => {
 	const router = useRouter();
 	const auth = useSelector((state) => state.auth);
-	const { SubMenu } = Menu;
 	const [, root, sub] = router.pathname?.split("/");
 
 	const { userType } = auth?.user || {};
