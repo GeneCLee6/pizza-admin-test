@@ -41,7 +41,7 @@ const PizzaDetail = ({ name, values, prices }) => {
 	};
 
 	return (
-		<Collapse defaultActiveKey={["1", "2", "3", "4"]}>
+		<Collapse defaultActiveKey={["1", "2", "3", "4", "5"]}>
 			<Panel header="Pizza Size" key="1">
 				<Field name="size">
 					{({ field }) => {
@@ -78,7 +78,7 @@ const PizzaDetail = ({ name, values, prices }) => {
 													>
 														{plusPriceFormatter(
 															prices[index] -
-																prices[0]
+															prices[0]
 														)}
 													</div>
 												)}
@@ -153,10 +153,20 @@ const PizzaDetail = ({ name, values, prices }) => {
 									(topping) =>
 										topping.toppingName === toppingName
 								)[0];
-								const price = retrieveItemPrice(
-									pizzaExtraTopping.prices,
-									selectedSize
-								);
+								if (values.secondHalf) {
+									const price =
+										retrieveItemPrice(
+											pizzaExtraTopping.prices,
+											values.size
+										) / 2;
+									return price;
+								} else {
+									const price = retrieveItemPrice(
+										pizzaExtraTopping.prices,
+										values.size
+									);
+									return price;
+								}
 								return price;
 							}
 						);
@@ -191,9 +201,16 @@ const PizzaDetail = ({ name, values, prices }) => {
 																fontSize="15px"
 																ml={4}
 															>
-																{plusPriceFormatter(
-																	itemPrice
-																)}
+																{values
+																	?.secondHalf[0]
+																	? plusPriceFormatter(
+																		itemPrice /
+																		2
+																	)
+																	: plusPriceFormatter(
+																		itemPrice
+																	)
+																}
 															</div>
 														)}
 													</Space>
@@ -257,7 +274,7 @@ const PizzaDetail = ({ name, values, prices }) => {
 														values?.secondHalf[0] &&
 														values
 															?.secondHalf[0] !==
-															name
+														name
 													}
 												>
 													<Space
@@ -279,8 +296,8 @@ const PizzaDetail = ({ name, values, prices }) => {
 															>
 																{addPrice > 0
 																	? plusPriceFormatter(
-																			addPrice
-																	  )
+																		addPrice
+																	)
 																	: null}
 															</div>
 														)}
@@ -291,6 +308,82 @@ const PizzaDetail = ({ name, values, prices }) => {
 									)}
 								</Space>
 							</Radio.Group>
+						);
+					}}
+				</Field>
+			</Panel>
+			{/* Extra Topping Selection For Second Half*/}
+			<Panel header="Extra Toppings For Second Half" key="5">
+				<Field name="secondHalfExtraToppings">
+					{({ field }) => {
+						const { onChange, ...rest } = field;
+						const toppings = [...rest.value];
+						values.secondHalfExtraToppingsPrices =
+							toppings.map((toppingName) => {
+								const pizzaExtraTopping =
+									pizzaExtraToppings?.filter(
+										(topping) =>
+											topping.toppingName === toppingName
+									)[0];
+								const price =
+									retrieveItemPrice(
+										pizzaExtraTopping.prices,
+										values.size
+									) / 2;
+								return price;
+							});
+						return (
+							<Checkbox.Group
+								{...rest}
+								id="secondHalfExtraToppings"
+							>
+								<Space direction="vertical">
+									{pizzaExtraToppings?.map(
+										({ _id, toppingName, prices }) => {
+											const itemPrice = retrieveItemPrice(
+												prices,
+												values.size
+											);
+											return (
+												<Checkbox
+													key={_id}
+													value={toppingName}
+													size="lg"
+													name="secondHalfExtraToppings"
+													onChange={onChange}
+												>
+													<Space>
+														<div
+															fontWeight="600"
+															fontSize="15px"
+															texttransform="capitalize"
+														>
+															{toppingName}
+														</div>
+														{!!itemPrice && (
+															<div
+																fontWeight="600"
+																fontSize="15px"
+																ml={4}
+															>
+																{values
+																	?.secondHalf[0]
+																	? plusPriceFormatter(
+																		itemPrice /
+																		2
+																	)
+																	: plusPriceFormatter(
+																		itemPrice
+																	)}
+															</div>
+														)}
+													</Space>
+												</Checkbox>
+											);
+										}
+									)}
+								</Space>
+							</Checkbox.Group>
 						);
 					}}
 				</Field>

@@ -15,7 +15,7 @@ const AddDishItem = ({ handleDishChoose }) => {
 		<div>
 			<div className="mb-3 w-50 ">
 				<Search
-					placeholder="请输入菜名（中文/英文）"
+					placeholder="请输入菜名（中文/英文）但是目前没用"
 					onSearch={handleSearch}
 					size="large"
 					allowClear
@@ -23,10 +23,22 @@ const AddDishItem = ({ handleDishChoose }) => {
 				/>
 			</div>
 			<Menu onClick={({ key }) => setCategoryId(key)} mode="horizontal">
-				{categories?.map(({ _id, categoryName }) => (
-					<Menu.Item key={_id}>{categoryName}</Menu.Item>
-				))}
+				{categories?.map(({ _id, categoryName }, index) => {
+					if (
+						categoryName !== "Combo Test" &&
+						categoryName !== "Combo Test1"
+					) {
+						return <Menu.Item key={_id}>{categoryName}</Menu.Item>;
+					}
+				})}
 			</Menu>
+			{/* <Menu onClick={({ key }) => setCategoryId(key)} mode="horizontal">
+				{categories?.map(({ _id, categoryName }, index) => {
+					if (index >= 9) {
+						return <Menu.Item key={_id}>{categoryName}</Menu.Item>;
+					}
+				})}
+			</Menu> */}
 			<div className="mt-3">
 				<div className="site-card-wrapper">
 					<Row gutter={[16, 16]}>

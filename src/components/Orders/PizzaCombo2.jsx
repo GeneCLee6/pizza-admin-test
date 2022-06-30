@@ -4,7 +4,7 @@ import { useExtraToppings } from "../../hooks/useTopping";
 import { useSecondHalfPizza } from "../../hooks/useSecondHalfPizza";
 import { useFirstHalfPizza } from "src/hooks/useFirstHalfPizza";
 import { useState } from "react";
-import { PizzaSize } from "src/configs/constants";
+import { PizzaSize, ComboBase } from "src/configs/constants";
 import useDishes from "src/hooks/useDishes";
 
 const { Panel } = Collapse;
@@ -118,8 +118,58 @@ const PizzaCombo2 = ({ name, values, prices, dishType }) => {
 					}}
 				</Field>
 			</Panel>
+			{/* base select */}
+			<Panel header="Pizza Combo 2 Base" key="2">
+				<Field name="baseCombo2">
+					{({ field }) => {
+						const { onChange, ...rest } = field;
+						if (rest.value) {
+							const base = ComboBase.filter(
+								(base) => base.name === rest.value
+							)[0];
+							values.basePriceCombo2 = base.price;
+						}
+
+						return (
+							<Radio.Group {...rest} id="baseCombo2">
+								<Space align="start" pl="2" gap={2}>
+									{ComboBase.map(({ name, price }) => (
+										<Radio
+											key={name}
+											value={name}
+											size="lg"
+											onChange={onChange}
+										>
+											<Space>
+												<div
+													fontWeight="600"
+													fontSize="15px"
+													texttransform="capitalize"
+												>
+													{name}
+												</div>
+												{!!price && (
+													<div
+														fontWeight="600"
+														fontSize="15px"
+														ml={4}
+													>
+														{plusPriceFormatter(
+															price
+														)}
+													</div>
+												)}
+											</Space>
+										</Radio>
+									))}
+								</Space>
+							</Radio.Group>
+						);
+					}}
+				</Field>
+			</Panel>
 			{/* Extra Topping Selection*/}
-			<Panel header="Extra Toppings" key="2">
+			<Panel header="Extra Toppings" key="3">
 				<Field name="extraToppingsCombo2">
 					{({ field }) => {
 						const { onChange, ...rest } = field;
@@ -180,12 +230,12 @@ const PizzaCombo2 = ({ name, values, prices, dishType }) => {
 																{values
 																	?.secondHalfPizzaCombo2[0]
 																	? plusPriceFormatter(
-																			itemPrice /
-																				2
-																	  )
+																		itemPrice /
+																		2
+																	)
 																	: plusPriceFormatter(
-																			itemPrice
-																	  )}
+																		itemPrice
+																	)}
 															</div>
 														)}
 													</Space>
@@ -200,7 +250,7 @@ const PizzaCombo2 = ({ name, values, prices, dishType }) => {
 				</Field>
 			</Panel>
 			{/* Second Half Selection*/}
-			<Panel header="Second Half" key="3">
+			<Panel header="Second Half" key="4">
 				<Field name="secondHalfPizzaCombo2">
 					{({ field }) => {
 						const { onChange, ...rest } = field;
@@ -230,17 +280,15 @@ const PizzaCombo2 = ({ name, values, prices, dishType }) => {
 											const addPrice =
 												itemPrice - firstHalfPrice;
 											return (
-												<Radio
+												<Checkbox
 													key={_id}
 													value={name}
 													size="lg"
 													name="secondHalfPizzaCombo2"
 													onChange={onChange}
-													isDisabled={
-														values?.secondHalf[0] &&
-														values
-															?.secondHalf[0] !==
-															name
+													disabled={
+														values?.secondHalfPizzaCombo2[0] &&
+														values?.secondHalfPizzaCombo2[0] !== name
 													}
 												>
 													<Space
@@ -262,13 +310,13 @@ const PizzaCombo2 = ({ name, values, prices, dishType }) => {
 															>
 																{addPrice > 0
 																	? plusPriceFormatter(
-																			addPrice
-																	  )
+																		addPrice
+																	)
 																	: null}
 															</div>
 														)}
 													</Space>
-												</Radio>
+												</Checkbox>
 											);
 										}
 									)}
@@ -279,7 +327,7 @@ const PizzaCombo2 = ({ name, values, prices, dishType }) => {
 				</Field>
 			</Panel>
 			{/* Extra Topping Selection For Second Half*/}
-			<Panel header="Extra Toppings For Second Half" key="4">
+			<Panel header="Extra Toppings For Second Half" key="5">
 				<Field name="secondHalfPizzaExtraToppingsCombo2">
 					{({ field }) => {
 						const { onChange, ...rest } = field;
@@ -335,12 +383,12 @@ const PizzaCombo2 = ({ name, values, prices, dishType }) => {
 																{values
 																	?.secondHalfPizzaCombo2[0]
 																	? plusPriceFormatter(
-																			itemPrice /
-																				2
-																	  )
+																		itemPrice /
+																		2
+																	)
 																	: plusPriceFormatter(
-																			itemPrice
-																	  )}
+																		itemPrice
+																	)}
 															</div>
 														)}
 													</Space>

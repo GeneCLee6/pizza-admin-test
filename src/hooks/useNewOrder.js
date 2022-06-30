@@ -149,18 +149,39 @@ const useNewOrder = (form) => {
 		);
 	};
 
-	const handleSubmitOrder = async (value, address) => {
+	const handleSubmitOrder = async (
+		value,
+		address,
+		min,
+		deliveryFee,
+		totalPrice,
+		currentOperation
+	) => {
 		const { comment, name, email, phone, PoD, payMethod } = value;
+		let rTime1;
+		let rTime2;
+		if (PoD == "delivery") {
+			rTime1 = currentOperation[0].deliverTime[0];
+			rTime2 = currentOperation[0].deliverTime[1];
+		} else {
+			rTime1 = currentOperation[0].pickupTime[0];
+			rTime2 = currentOperation[0].pickupTime[1];
+		}
+		const currentTotalPrice = totalPrice + deliveryFee;
 		const payload = {
 			status: "pending",
+			isPaid: false,
 			payMethod: payMethod,
-			totalPrice: totalPrice,
+			totalPrice: currentTotalPrice,
 			comment: comment,
 			name: name,
-			address: address,
+			address,
 			email: email,
 			phone: phone,
 			orderType: PoD,
+			deliveryFee: deliveryFee,
+			readyTime1: rTime1,
+			readyTime2: rTime2,
 			dishes: dishes.map((dish) => ({
 				...dish,
 				base: dish.base ? dish.base : "",
@@ -172,35 +193,37 @@ const useNewOrder = (form) => {
 				secondHalf: dish.secondHalf
 					? dish.secondHalf
 					: "No Second half pizza",
+				secondHalfPizzaCombo1: dish.secondHalfPizzaCombo1
+					? dish.secondHalfPizzaCombo1
+					: "No Second half pizza",
+				secondHalfPizzaCombo2: dish.secondHalfPizzaCombo2
+					? dish.secondHalfPizzaCombo2
+					: "No Second half pizza",
+				secondHalfPizzaCombo3: dish.secondHalfPizzaCombo3
+					? dish.secondHalfPizzaCombo3
+					: "No Second half pizza",
 			})),
 			coupon: "",
-			// address: "",
 		};
-
-		if(value.PoD == "delivery" && address == ""){
-			alert("Address is needed")
-		}else{
-			try {
-				message.loading({ content: "正在提交...", createKey });
-				setDisabledBtn(true);
-				await requestCreatePhoneNewOrder(payload);
-				message.success({
-					content: "提交成功",
-					createKey,
-					duration: 2,
-				});
-				setDishes([]);
-				form.resetFields();
-				clearCart();
-			} catch (error) {
-				message.error({
-					content: "提交失败",
-					createKey,
-					duration: 2,
-				});
-			}
+		try {
+			message.loading({ content: "正在提交...", createKey });
+			setDisabledBtn(true);
+			await requestCreatePhoneNewOrder(payload);
+			message.success({
+				content: "提交成功",
+				createKey,
+				duration: 2,
+			});
+			setDishes([]);
+			form.resetFields();
+			clearCart();
+		} catch (error) {
+			message.error({
+				content: "提交失败",
+				createKey,
+				duration: 2,
+			});
 		}
-
 	};
 
 	const showConfirmCancelOrder = () => {

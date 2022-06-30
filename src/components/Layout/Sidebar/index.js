@@ -64,15 +64,15 @@ const Sidebar = () => {
 				</>
 			) : null}
 			<Menu.Item
-				key="/orders"
-				onClick={() => router.push("/orders")}
+				key="/ordersUnprint"
+				onClick={() => router.push("/ordersUnprint")}
 				icon={<ShoppingCartOutlined />}
 			>
 				<span>未打印订单</span>
 			</Menu.Item>
 			<Menu.Item
-				key="/ordersUnprint"
-				onClick={() => router.push("/ordersUnprint")}
+				key="/ordersUnpaid"
+				onClick={() => router.push("/ordersUnpaid")}
 				icon={<ShoppingCartOutlined />}
 			>
 				<span>已打印未付款订单</span>

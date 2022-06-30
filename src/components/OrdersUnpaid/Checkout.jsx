@@ -9,6 +9,8 @@ const Checkout = ({ currentOrder, setShowCheckoutModal, form, setDishes }) => {
 		setDishes
 	);
 
+	console.log("currentOrder", currentOrder);
+
 	const columns = [
 		{
 			title: "Dish",
@@ -19,6 +21,9 @@ const Checkout = ({ currentOrder, setShowCheckoutModal, form, setDishes }) => {
 			title: "Price",
 			align: "center",
 			dataIndex: "price",
+			render: (price, record) => {
+				return <span>{priceFormatter(price)}</span>;
+			},
 		},
 
 		{
@@ -46,20 +51,36 @@ const Checkout = ({ currentOrder, setShowCheckoutModal, form, setDishes }) => {
 				size="small"
 				pagination={false}
 				summary={() => (
-					<Table.Summary.Row>
-						<Table.Summary.Cell>
-							<span className="font-weight-bold fs-lg">
-								Total Price
-							</span>
-						</Table.Summary.Cell>
-						<Table.Summary.Cell></Table.Summary.Cell>
-						<Table.Summary.Cell></Table.Summary.Cell>
-						<Table.Summary.Cell className="text-right">
-							<span className="font-weight-bold fs-lg text-primary">
-								${currentOrder?.totalPrice}
-							</span>
-						</Table.Summary.Cell>
-					</Table.Summary.Row>
+					<>
+						<Table.Summary.Row>
+							<Table.Summary.Cell />
+							<Table.Summary.Cell />
+							<Table.Summary.Cell>
+								<span className="font-weight-bold fs-lg">
+									Delivery Fee
+								</span>
+							</Table.Summary.Cell>
+							<Table.Summary.Cell className="text-right">
+								<span className="font-weight-bold fs-lg text-primary">
+									${currentOrder?.deliveryFee.toFixed(2)}
+								</span>
+							</Table.Summary.Cell>
+						</Table.Summary.Row>
+						<Table.Summary.Row>
+							<Table.Summary.Cell />
+							<Table.Summary.Cell />
+							<Table.Summary.Cell>
+								<span className="font-weight-bold fs-lg">
+									Total Price
+								</span>
+							</Table.Summary.Cell>
+							<Table.Summary.Cell className="text-right">
+								<span className="font-weight-bold fs-lg text-primary">
+									${currentOrder?.totalPrice.toFixed(2)}
+								</span>
+							</Table.Summary.Cell>
+						</Table.Summary.Row>
+					</>
 				)}
 			/>
 
@@ -71,7 +92,7 @@ const Checkout = ({ currentOrder, setShowCheckoutModal, form, setDishes }) => {
 					// disabled={disabledBtn}
 					onClick={() => handleCheckout(currentOrder)}
 				>
-					Print
+					Print大
 				</Button>
 			</div>
 		</div>

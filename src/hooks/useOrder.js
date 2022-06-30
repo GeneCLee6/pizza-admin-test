@@ -3,7 +3,12 @@ import { useQuery, useQueryClient } from "react-query";
 import { notification, Modal, message } from "antd";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 import { nanoid } from "nanoid";
-import { requestCurrentOrders, requestCancelOrder, sendEmail } from "src/services/orders";
+import {
+	requestCurrentOrders,
+	requestCancelOrder,
+	sendEmail,
+	requestUnpaidOrders,
+} from "src/services/orders";
 import { priceRounder } from "src/utils/helpers";
 
 const { confirm } = Modal;
@@ -15,6 +20,8 @@ const useOrder = () => {
 	const [showAddOrderDishModal, setShowAddOrderDishModal] = useState(false);
 	const [showAddSideDishModal, setShowAddSideDishModal] = useState(false);
 	const [selectedSideDishItem, setSelectedSideDishItem] = useState(null);
+	const [unpaidOrder, setUnpaidOrder] = useState([]);
+	const [unpaidOrders, setUnpaidOrders] = useState([]);
 
 	const queryClient = useQueryClient();
 	const {
@@ -28,16 +35,39 @@ const useOrder = () => {
 			if (data?.length > currentOrders?.length) {
 				notification.success({
 					message: "收到新订单",
-					duration: 0,
+					duration: 1,
 				});
 			}
 		},
+	});
+
+	const {
+		// isLoading,
+		// error,
+		data: unpaidOrdersData,
+	} = useQuery(["fetchUnpaidOrders"], () => requestUnpaidOrders(), {
+		// Refetch the data every second
+		// refetchInterval: 3000,
+		// onSuccess: (data) => {
+		// 	if (data?.length > unpaidOrders?.length) {
+		// 		notification.success({
+		// 			message: "新订单已打印",
+		// 			duration: 5,
+		// 		});
+		// 	}
+		// },
 	});
 
 	const handleToggleTable = (e) => {
 		const selectedOrder = e.target.value;
 		const order = currentOrdersData.find((i) => i._id === selectedOrder);
 		setCurrentOrder(order);
+	};
+
+	const handleUnpaidToggleTable = (e) => {
+		const selectedOrder = e.target.value;
+		const order = unpaidOrdersData.find((i) => i._id === selectedOrder);
+		setUnpaidOrder(order);
 	};
 
 	const handleChangeComment = (e) => {
@@ -58,8 +88,16 @@ const useOrder = () => {
 		});
 	};
 
+	const handleChangeUnpaidTotalPrice = (e) => {
+		setUnpaidOrder((unpaidOrder) => {
+			return {
+				...unpaidOrder,
+				totalPrice: e,
+			};
+		});
+	};
+
 	const handleToggleDishQuantity = (record, action) => {
-		// TODO Bug 当有多个麻辣烫时，数量会同时改变
 		const { _id: dishId, price } = record;
 		setCurrentOrder((currentOrder) => {
 			const { dishes, orderTotalPrice } = currentOrder;
@@ -235,30 +273,43 @@ const useOrder = () => {
 
 	useEffect(() => {
 		const loadShowData = () => {
-			const [initialOrder] = currentOrdersData || [];
-			setCurrentOrder(initialOrder);
+			const [initialCurrentOrder] = currentOrdersData || [];
+			const [initialUnpaidOrder] = unpaidOrdersData || [];
+			setCurrentOrder(initialCurrentOrder);
+			setUnpaidOrder(initialUnpaidOrder);
 		};
 		setCurrentOrders(currentOrdersData);
+		setUnpaidOrders(unpaidOrdersData);
 		loadShowData();
-	}, [currentOrdersData]);
+	}, [currentOrdersData, unpaidOrdersData]);
 
 	const handleSendEmail = async (currentOrder, currentOperation) => {
-		let emailMessage
-		if(currentOrder.orderType == "delivery"){
-			if(!currentOrder.address){
-				alert("Address is required")
+		let emailMessage;
+		if (currentOrder.orderType == "delivery") {
+			if (!currentOrder.address) {
+				alert("Address is required");
 			}
-			emailMessage = "Your meal will be delivered after " + currentOperation[0].deliverTime[0] + " to " + currentOperation[0].deliverTime[1] + " munites"
-		}else{
-			emailMessage = "Your meal will be ready after " + currentOperation[0].pickupTime[0] + " to " + currentOperation[0].pickupTime[1] + " munites"
+			emailMessage =
+				"Your meal will be delivered after " +
+				currentOperation[0].deliverTime[0] +
+				" to " +
+				currentOperation[0].deliverTime[1] +
+				" munites";
+		} else {
+			emailMessage =
+				"Your meal will be ready after " +
+				currentOperation[0].pickupTime[0] +
+				" to " +
+				currentOperation[0].pickupTime[1] +
+				" munites";
 		}
 
 		const email = {
-			... currentOrder,
-			emailMessage
-		}
+			...currentOrder,
+			emailMessage,
+		};
 
-		const emailKey = "emailOrder"
+		const emailKey = "emailOrder";
 
 		message.loading({ content: "Sending Email...", emailKey });
 		try {
@@ -275,7 +326,7 @@ const useOrder = () => {
 				duration: 2,
 			});
 		}
-	}
+	};
 
 	return {
 		isLoading,
@@ -298,6 +349,10 @@ const useOrder = () => {
 		selectedSideDishItem,
 		handleAddSideDishItem,
 		handleSendEmail,
+		unpaidOrder,
+		unpaidOrders,
+		handleChangeUnpaidTotalPrice,
+		handleUnpaidToggleTable,
 	};
 };
 

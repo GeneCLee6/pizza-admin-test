@@ -23,6 +23,21 @@ const Transactions = () => {
 			align: "center",
 		},
 		{
+			title: "客户名",
+			dataIndex: "name",
+			align: "center",
+		},
+		{
+			title: "地址",
+			dataIndex: "address",
+			align: "center",
+		},
+		{
+			title: "电话",
+			dataIndex: "phone",
+			align: "center",
+		},
+		{
 			title: "时间",
 			dataIndex: "createdAt",
 			defaultSortOrder: "descend",
@@ -34,26 +49,15 @@ const Transactions = () => {
 			title: "菜品",
 			key: "_id",
 			dataIndex: "dishes",
-			width: "180px",
+			width: "200px",
 			render: (dishes) => {
-				return dishes?.map(
-					({ _id, dishName, extraToppings, secondHalfPizza }) => {
-						return (
-							<div key={_id}>
-								<div className="fw-600">{`pizza:${dishName}`}</div>
-								<div className="fw-600">{`second pizza:${secondHalfPizza}`}</div>
-								{
-									<div className="secondary fs-xs">
-										Extra Toppings:
-										{extraToppings.map((i) => {
-											return ` ${i} `;
-										})}
-									</div>
-								}
-							</div>
-						);
-					}
-				);
+				return dishes?.map(({ _id, dishName }) => {
+					return (
+						<div key={_id}>
+							<div className="fw-600">{`Dish Name:${dishName}`}</div>
+						</div>
+					);
+				});
 			},
 		},
 

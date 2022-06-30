@@ -1,5 +1,8 @@
 import { message } from "antd";
-import { requestPrintOrder } from "src/services/orders";
+import {
+	requestPrintOrder,
+	requestEditPrintedOrder,
+} from "src/services/orders";
 
 const printKey = "printOrder";
 
@@ -8,6 +11,9 @@ const usePrint = () => {
 		message.loading({ content: "正在打印...", printKey });
 		try {
 			const res = await requestPrintOrder(_id, type);
+			if (res?.code === 0) {
+				requestEditPrintedOrder(_id);
+			}
 			if (res?.code === 999) {
 				message.error({
 					content: "打印机网络不稳定，请稍后再试",

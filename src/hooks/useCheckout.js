@@ -1,11 +1,7 @@
 import { useState, useEffect } from "react";
 import { useMutation, useQueryClient } from "react-query";
 import { message, notification } from "antd";
-import {
-	requestPayOrder,
-	requestCreateNewOrder,
-	requestEditOrder,
-} from "src/services/orders";
+import { requestCreateNewOrder, requestEditOrder } from "src/services/orders";
 
 const calculatePayment = (payMethod, totalPrice, cashPaid) => {
 	switch (payMethod) {
@@ -49,7 +45,7 @@ const useCheckout = (setShowCheckoutModal, form, setDishes) => {
 
 	const queryClient = useQueryClient();
 
-	const editOrder = useMutation((payload) => requestPayOrder(payload), {
+	const editOrder = useMutation((payload) => requestEditOrder(payload), {
 		onSuccess: () => {
 			queryClient.invalidateQueries("fetchCurrentOrders");
 			message.success({
@@ -119,6 +115,7 @@ const useCheckout = (setShowCheckoutModal, form, setDishes) => {
 					duration: 2,
 				});
 				// Check print
+
 				if (createRes) {
 					if (createRes?.code === 0) return;
 					if (createRes?.code === 999) {
@@ -156,7 +153,7 @@ const useCheckout = (setShowCheckoutModal, form, setDishes) => {
 		};
 		message.loading({ content: "正在提交...", editKey });
 		setDisabledBtn(true);
-		requestEditOrder(payload);
+		//	requestEditOrder(payload);
 		editOrder.mutate(payload);
 	};
 

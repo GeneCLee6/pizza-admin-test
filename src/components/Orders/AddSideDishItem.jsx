@@ -5,6 +5,7 @@ import PastaDetail from "src/components/Orders/PastaDetail";
 import FridayAndSaturdaySpecial from "./FridayAndSaturdaySpecial";
 import ThursdayAndSundaySpecial from "./ThursdayAndSundaySpecial";
 import PickUpSpecialDetail from "src/components/Orders/PickUpSpecialDetail";
+import DrinkDetail from "./DrinkDetail";
 import { v4 as uuid } from "uuid";
 
 import { GlobalContext } from "../../contexts/GlobalProvider";
@@ -16,8 +17,14 @@ const AddSideDishItem = ({
 	dishes,
 	setDishes,
 }) => {
-	const { _id, name, description, dishType, prices, photo } =
-		selectedSideDishItem;
+	const {
+		_id,
+		name,
+		description,
+		dishType,
+		prices,
+		photo,
+	} = selectedSideDishItem;
 
 	const [itemQuantity] = useState(1);
 
@@ -46,6 +53,8 @@ const AddSideDishItem = ({
 		secondHalfPizzaExtraToppingsPricesCombo3: [],
 		secondHalf: "",
 		secondHalfPrice: 0,
+		secondHalfExtraToppings: "",
+		secondHalfExtraToppingsPrices: [],
 		secondHalfPriceCombo1: 0,
 		secondHalfPriceCombo2: 0,
 		secondHalfPriceCombo3: 0,
@@ -60,13 +69,19 @@ const AddSideDishItem = ({
 		dishPrice: 0,
 		currentPrice: 0,
 		pizzaCombo1: "",
+		baseCombo1: "",
+		basePriceCombo1: 0,
 		secondHalfPizzaCombo1: "",
-		upgradeDrinks: [],
-		upgradeDrinkPrice: 0,
 		pizzaCombo2: "",
+		baseCombo2: "",
+		basePriceCombo2: 0,
 		secondHalfPizzaCombo2: "",
 		pizzaCombo3: "",
+		baseCombo3: "",
+		basePriceCombo3: 0,
 		secondHalfPizzaCombo3: "",
+		upgradeDrinks: [],
+		upgradeDrinkPrice: 0,
 	};
 
 	const handleAddToCart = (item) => {
@@ -76,34 +91,41 @@ const AddSideDishItem = ({
 		);
 		const totalToppingPriceCombo1 = item.extraToppingsPricesCombo1.reduce(
 			(sum, value) => (sum += value),
-			0,
+			0
 		);
 		const totalToppingPriceCombo2 = item.extraToppingsPricesCombo2.reduce(
 			(sum, value) => (sum += value),
-			0,
+			0
 		);
 		const totalToppingPriceCombo3 = item.extraToppingsPricesCombo3.reduce(
 			(sum, value) => (sum += value),
-			0,
+			0
 		);
-		let secondHalfTotalToppingPriceCombo1 =
-			item.secondHalfPizzaExtraToppingsPricesCombo1.reduce(
-				(sum, value) => (sum += value),
-				0,
-			);
-		let secondHalfTotalToppingPriceCombo2 =
-			item.secondHalfPizzaExtraToppingsPricesCombo2.reduce(
-				(sum, value) => (sum += value),
-				0,
-			);
-		let secondHalfTotalToppingPriceCombo3 =
-			item.secondHalfPizzaExtraToppingsPricesCombo3.reduce(
-				(sum, value) => (sum += value),
-				0,
-			);
+		let secondHalfTotalToppingPriceCombo1 = item.secondHalfPizzaExtraToppingsPricesCombo1.reduce(
+			(sum, value) => (sum += value),
+			0
+		);
+		let secondHalfTotalToppingPriceCombo2 = item.secondHalfPizzaExtraToppingsPricesCombo2.reduce(
+			(sum, value) => (sum += value),
+			0
+		);
+		let secondHalfTotalToppingPriceCombo3 = item.secondHalfPizzaExtraToppingsPricesCombo3.reduce(
+			(sum, value) => (sum += value),
+			0
+		);
 
 		let currentPrice = 0;
 		if (dishType === "pizza") {
+			const firstHalfPrice = prices[0];
+			const pizzaPrice =
+				firstHalfPrice +
+				item.sizePrice +
+				item.basePrice +
+				totalToppingPrice +
+				item.secondHalfPrice;
+			currentPrice = pizzaPrice;
+		}
+		if (dishType === "gourmet") {
 			const firstHalfPrice = prices[0];
 			const pizzaPrice =
 				firstHalfPrice +
@@ -157,6 +179,9 @@ const AddSideDishItem = ({
 				secondHalfTotalToppingPriceCombo1 +
 				secondHalfTotalToppingPriceCombo2 +
 				secondHalfTotalToppingPriceCombo3 +
+				item.basePriceCombo1 +
+				item.basePriceCombo2 +
+				item.basePriceCombo3 +
 				item.upgradeDrinkPrice;
 			currentPrice = pizzaPrice;
 		}
@@ -202,6 +227,13 @@ const AddSideDishItem = ({
 							name={name}
 						/>
 					)}
+					{dishType === "gourmet" && (
+						<PizzaDetail
+							prices={prices}
+							values={values}
+							name={name}
+						/>
+					)}
 					{dishType === "pasta" && <PastaDetail values={values} />}
 					{dishType === "pizzaspecial" && (
 						<PickUpSpecialDetail
@@ -232,6 +264,7 @@ const AddSideDishItem = ({
 							dishType={dishType}
 						/>
 					)}
+					{dishType === "drink" && <DrinkDetail name={name} />}
 
 					{/* Note Selection*/}
 					<div>Special Instructions</div>

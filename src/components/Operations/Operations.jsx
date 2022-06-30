@@ -2,13 +2,8 @@ import { Space, Skeleton, Table, Popconfirm } from "antd";
 import useOperations from "src/hooks/useOperation";
 
 const Operations = () => {
-	const {
-		isLoading,
-		error,
-		operations,
-		currentOperation,
-		handleConfirm,
-	} = useOperations();
+	const { isLoading, error, operations, currentOperation, handleConfirm } =
+		useOperations();
 
 	const columns = [
 		{
@@ -54,6 +49,8 @@ const Operations = () => {
 			},
 		},
 	];
+
+	console.log("currentOperation", currentOperation);
 
 	return (
 		<div>

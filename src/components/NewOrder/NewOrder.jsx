@@ -15,11 +15,14 @@ import { MinusOutlined, PlusOutlined, DeleteTwoTone } from "@ant-design/icons";
 import AddDishItem from "../Orders/AddDishItem";
 import AddSideDishItem from "../Orders/AddSideDishItem";
 import useNewOrder from "src/hooks/useNewOrder";
+import useOperations from "src/hooks/useOperation";
 import Checkout from "src/components/Orders/Checkout";
+import { ShippingRequirements } from "src/configs/constants";
 import { priceFormatter } from "src/utils/helpers";
 import { useState, useEffect } from "react";
 
 import axios from "axios";
+import FormItem from "antd/lib/form/FormItem";
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -51,10 +54,16 @@ const NewOrder = () => {
 	};
 
 	const [inputs, setInputs] = useState(formInputs);
-	const [isRenderAddressDropDown, setIsRenderAddressDropDown] =
-		useState(false);
+	const [isRenderAddressDropDown, setIsRenderAddressDropDown] = useState(
+		false
+	);
 	const [addressesFound, setAddressesFound] = useState([]);
-	const [totalPrice, setTotalPrice] = useState();
+	const [suburbSelect, setSuburbSelect] = useState(true);
+	const [totalPrice, setTotalPrice] = useState(0);
+	const [deliveryFee, setDeliveryFee] = useState(0);
+	const [min, setMin] = useState(0);
+
+	const { currentOperation } = useOperations();
 
 	const onSelectAddress = (selectedAddress) => {
 		const addressData = Object.assign({}, selectedAddress);
@@ -76,7 +85,7 @@ const NewOrder = () => {
 		setAddressesFound(addresses);
 	};
 
-	const handleInputsChange = (inputName, inputValue) => {
+	const handleInputsChange = async (inputName, inputValue) => {
 		if (inputName === "address" && inputValue !== inputs.address) {
 			if (inputValue.trim().length > 4) {
 				setIsRenderAddressDropDown(true);
@@ -85,8 +94,17 @@ const NewOrder = () => {
 				setInputs((inputs) => ({ ...inputs, addressData: {} }));
 				setIsRenderAddressDropDown(false);
 			}
+			setInputs((inputs) => ({ ...inputs, [inputName]: inputValue }));
+		} else if (inputName == "suburb") {
+			ShippingRequirements.map((suburbs) => {
+				suburbs.suburbs.map((suburb) => {
+					if (suburb == inputValue) {
+						setMin(suburbs.minOrderCost);
+						setDeliveryFee(suburbs.fee);
+					}
+				});
+			});
 		}
-		setInputs((inputs) => ({ ...inputs, [inputName]: inputValue }));
 	};
 
 	useEffect(() => {
@@ -260,8 +278,26 @@ const NewOrder = () => {
 				size="large"
 				name="createOrder"
 				onFinish={(value) => {
-					handleSubmitOrder(value, inputs.address);
-					setInputs("");
+					if (value.PoD == "delivery" && totalPrice < min) {
+						alert("The order cost should be higher than " + min);
+					} else if (
+						value.PoD == "delivery" &&
+						inputs.address == ""
+					) {
+						alert("Address is needed");
+					} else {
+						handleSubmitOrder(
+							value,
+							inputs.address,
+							min,
+							deliveryFee,
+							totalPrice,
+							currentOperation
+						);
+						setInputs("");
+						setDeliveryFee(0);
+						setMin(0);
+					}
 				}}
 				layout="vertical"
 			>
@@ -272,7 +308,15 @@ const NewOrder = () => {
 							label="Pick up or Delivery"
 							required
 						>
-							<Select>
+							<Select
+								onChange={(value) => {
+									if (value == "delivery") {
+										setSuburbSelect(false);
+									} else {
+										setSuburbSelect(true);
+									}
+								}}
+							>
 								<Option disabled selected>
 									Please Select
 								</Option>
@@ -295,20 +339,19 @@ const NewOrder = () => {
 					</Col>
 					<Col span={6} offset={2}>
 						<Form.Item name="name" label="Name" required>
-							<Input style={{ width: 300 }} />
+							<Input />
 						</Form.Item>
 						<Form.Item name="phone" label="Phone Number" required>
-							<Input style={{ width: 300 }} />
+							<Input />
 						</Form.Item>
 					</Col>
 					<Col span={6} offset={2}>
 						<Form.Item name="email" label="Email" required>
-							<Input style={{ width: 300 }} />
+							<Input />
 						</Form.Item>
 
 						<Form.Item name="address" label="Address">
-							<input
-								style={{ width: 300 }}
+							<Input
 								type="text"
 								value={inputs.address}
 								onChange={(e) => {
@@ -340,12 +383,51 @@ const NewOrder = () => {
 						</Form.Item>
 					</Col>
 				</Row>
+				<Row>
+					<Col span={6}>
+						<Form.Item name="suburb" label="Suburb">
+							<Select
+								onChange={async (value) => {
+									await handleInputsChange("suburb", value);
+								}}
+								disabled={suburbSelect}
+							>
+								<Option disabled selected>
+									Please Select
+								</Option>
+								<Option value="Bellerive">Bellerive</Option>
+								<Option value="Rosny">Rosny</Option>
+								<Option value="Rosny Park">Rosny Park</Option>
+								<Option value="Montagu Bay">Montagu Bay</Option>
+								<Option value="Warrane">Warrane</Option>
+								<Option value="Rose Bay">Rose Bay</Option>
+								<Option value="Mornington">Mornington</Option>
+								<Option value="Lindisfarne">Lindisfarne</Option>
+								<Option value="Howrah">Howrah</Option>
+								<Option value="Rokeby">Rokeby</Option>
+								<Option value="Tranmere">Tranmere</Option>
+								<Option value="Clarendon Vale">
+									Clarendon Vale
+								</Option>
+								<Option value="Oakdowns">Oakdowns</Option>
+								<Option value="Geilston Bay">
+									Geilston Bay
+								</Option>
+							</Select>
+						</Form.Item>
+					</Col>
+					<Col span={6} offset={2}>
+						<FormItem label="Delivery Fee" name="deliveryFee">
+							<div>{deliveryFee}</div>
+						</FormItem>
+					</Col>
+				</Row>
 
 				{dishes ? (
 					<>
 						{totalPrice ? (
 							<span className="fs-lg fw-600 float-right">
-								合计: ${totalPrice}
+								合计: ${totalPrice.toFixed(2)}
 							</span>
 						) : null}
 						<Table
@@ -381,7 +463,11 @@ const NewOrder = () => {
 				</Form.Item>
 				{dishes?.length ? (
 					<div>
-						<Form.Item name="comment" label="备注">
+						<Form.Item
+							name="comment"
+							label="备注"
+							initialValue={""}
+						>
 							<TextArea rows={4} />
 						</Form.Item>
 						<div className="my-3 d-flex flex-row-reverse">
@@ -414,7 +500,7 @@ const NewOrder = () => {
 				onCancel={() => {
 					setShowAddOrderDishModal(false);
 				}}
-				width={800}
+				width={1000}
 				footer={null}
 			>
 				<AddDishItem handleDishChoose={handleDishChoose} />

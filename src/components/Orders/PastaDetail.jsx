@@ -2,7 +2,7 @@ import { Field } from "formik";
 import { Collapse, Radio, Space, Checkbox } from "antd";
 const { Panel } = Collapse;
 
-import { PastaChoice, pastaExtraToppings } from "../../configs/constants";
+import { PastaChoice } from "../../configs/constants";
 import { useExtraToppings } from "../../hooks/useTopping";
 import { retrieveItemPrice } from "../../utils/helpers";
 
@@ -52,7 +52,7 @@ const PastaDetail = ({ values }) => {
 						const toppings = [...rest.value];
 						values.extraToppingsPrices = toppings.map(
 							(toppingName) => {
-								const extraToppings = pastaExtraToppings.filter(
+								const extraToppings = data.filter(
 									(topping) =>
 										topping.toppingName === toppingName
 								)[0];

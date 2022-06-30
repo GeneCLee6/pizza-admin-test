@@ -1,41 +1,29 @@
 import Image from "next/image";
-import { Space, Skeleton, Button, Table, Popconfirm, Modal, Radio } from "antd";
-import AddDishItem from "./AddDishItem";
-import AddSideDishItem from "./AddSideDishItem";
-import Checkout from "./Checkout";
-import { DeleteTwoTone } from "@ant-design/icons";
+import {
+	Space,
+	Skeleton,
+	Button,
+	Table,
+	Modal,
+	Radio,
+	InputNumber,
+} from "antd";
 import useOrder from "src/hooks/useOrder";
-import usePrint from "src/hooks/usePrint";
-import { priceFormatter, throttle } from "src/utils/helpers";
+import Checkout from "./Checkout";
+import { priceFormatter } from "src/utils/helpers";
 import classes from "./style.module.less";
-import useOperations from "src/hooks/useOperation";
 
-const Orders = () => {
-	//	const [form] = Form.useForm();
+const OrdersUnpaid = () => {
 	const {
 		isLoading,
 		error,
-		currentOrders,
-		currentOrder,
-		handleToggleTable,
-		handleDeleteDish,
-		handleAddDish,
+		handleChangeUnpaidTotalPrice,
 		showCheckoutModal,
 		setShowCheckoutModal,
-		showConfirmCancelOrder,
-		showAddOrderDishModal,
-		setShowAddOrderDishModal,
-		showAddSideDishModal,
-		setShowAddSideDishModal,
-		selectedSideDishItem,
-		handleAddSideDishItem,
-		handleSendEmail,
+		unpaidOrder,
+		unpaidOrders,
+		handleUnpaidToggleTable,
 	} = useOrder();
-
-	const { currentOperation } = useOperations();
-
-	const { handlePrint } = usePrint();
-	//const [emailModal, setEmailModal] = useState(false);
 
 	const columns = [
 		{
@@ -101,6 +89,7 @@ const Orders = () => {
 					pizzaChoice,
 					pastaChoice,
 				} = record;
+				console.log(record);
 
 				let hasExtraToppings = true;
 				let hasSecondHalf = true;
@@ -172,7 +161,6 @@ const Orders = () => {
 					hasCombo1 = false;
 					hasBase1 = false;
 				}
-
 				if (pizzaCombo1 != "") {
 					hasSize = false;
 					hasBase = false;
@@ -641,43 +629,22 @@ const Orders = () => {
 				return <span>{priceFormatter(price * record.quantity)}</span>;
 			},
 		},
-
-		{
-			title: "操作",
-			render: (_, record) => {
-				return (
-					<Space size="middle">
-						<Popconfirm
-							title="确认删除该菜品?"
-							onConfirm={() => handleDeleteDish(record)}
-							okText="确定"
-							cancelText="取消"
-						>
-							<DeleteTwoTone
-								twoToneColor="#c53030"
-								style={{ fontSize: "16px" }}
-							/>
-						</Popconfirm>
-					</Space>
-				);
-			},
-		},
 	];
 
 	return (
 		<>
 			<div className={classes.buttonWrapper}>
 				<Radio.Group
-					onChange={handleToggleTable}
+					onChange={handleUnpaidToggleTable}
 					size="large"
-					value={currentOrder?._id}
+					value={unpaidOrder?._id}
 				>
 					<Space wrap size="middle">
 						{isLoading ? (
 							<Skeleton active />
 						) : (
 							<>
-								{currentOrders?.map(({ _id, orderNum }) => (
+								{unpaidOrders?.map(({ _id, orderNum }) => (
 									<Radio.Button key={_id} value={_id}>
 										{" "}
 										Order Number: {orderNum}
@@ -697,15 +664,21 @@ const Orders = () => {
 				) : (
 					<>
 						<div className="d-flex justify-content-between align-items-center mb-2">
-							{currentOrder ? (
+							{unpaidOrder ? (
 								<>
 									<span className="fs-lg fw-600">
-										订单号2: {currentOrder?.orderNum}
+										订单号3: {unpaidOrder?.orderNum}
+									</span>
+									<span className="fs-lg fw-600">
+										Delivery Fee:{" "}
+										{priceFormatter(
+											unpaidOrder?.deliveryFee
+										)}
 									</span>
 									<span className="fs-lg fw-600">
 										合计:{" "}
 										{priceFormatter(
-											currentOrder?.totalPrice
+											unpaidOrder?.totalPrice
 										)}
 									</span>
 								</>
@@ -714,45 +687,34 @@ const Orders = () => {
 						<Table
 							columns={columns}
 							rowKey={(record) => record?.itemId || record?._id}
-							dataSource={currentOrder?.dishes}
+							dataSource={unpaidOrder?.dishes}
 							showHeader={false}
 							pagination={false}
 							className="border border-bottom-0"
 						/>
-						{currentOrder ? (
+						{unpaidOrder ? (
 							<>
-								{/* <h3 className="fs-md  mt-5">Total Price</h3>
-								<TextArea
-									rows={1}
-									value={currentOrder?.totalPrice}
-									onChange={handleChangeTotalPrice}
-								/> */}
+								<h3 className="fs-md  mt-5">Total Price</h3>
+								<InputNumber
+									value={unpaidOrder?.totalPrice}
+									step={0.1}
+									min={0}
+									onChange={handleChangeUnpaidTotalPrice}
+								/>
 								<div className="my-3 d-flex flex-row-reverse">
 									<Space>
-										<Button
+										{/* <Button
 											onClick={() => {
-												// setEmailModal(true)
+												// setEmailModal(true),
 												handleSendEmail(
-													currentOrder,
+													unpaidOrder,
 													currentOperation
 												);
 											}}
 										>
 											Email
-										</Button>
+										</Button> */}
 										<Button
-											onClick={throttle(() =>
-												handlePrint(
-													currentOrder?._id,
-													"kitchen"
-												)
-											)}
-											size="large"
-											type="dashed"
-										>
-											打印厨房小票啦1
-										</Button>
-										{/* <Button
 											type="primary"
 											size="large"
 											onClick={() =>
@@ -760,15 +722,6 @@ const Orders = () => {
 											}
 										>
 											结算
-										</Button> */}
-
-										<Button
-											size="large"
-											onClick={() =>
-												showConfirmCancelOrder()
-											}
-										>
-											取消
 										</Button>
 									</Space>
 								</div>
@@ -777,40 +730,6 @@ const Orders = () => {
 					</>
 				)}
 			</div>
-			<Modal
-				visible={showAddOrderDishModal}
-				title="选择菜品"
-				okText="确定"
-				cancelText="取消"
-				destroyOnClose
-				onCancel={() => {
-					setShowAddOrderDishModal(false);
-				}}
-				width={800}
-				footer={null}
-			>
-				<AddDishItem
-					handleAddDish={handleAddDish}
-					//currentCategory={currentCategory}
-				/>
-			</Modal>
-			<Modal
-				visible={showAddSideDishModal}
-				title="请选择配菜"
-				okText="确定"
-				cancelText="取消"
-				destroyOnClose
-				onCancel={() => {
-					setShowAddSideDishModal(false);
-				}}
-				width={500}
-				footer={null}
-			>
-				<AddSideDishItem
-					selectedSideDishItem={selectedSideDishItem}
-					handleAddSideDishItem={handleAddSideDishItem}
-				/>
-			</Modal>
 			<Modal
 				visible={showCheckoutModal}
 				okText="确定"
@@ -822,49 +741,12 @@ const Orders = () => {
 				footer={null}
 			>
 				<Checkout
-					currentOrder={currentOrder}
+					currentOrder={unpaidOrder}
 					setShowCheckoutModal={setShowCheckoutModal}
 				/>
 			</Modal>
-			{/* <Modal
-				visible={emailModal}
-				title="Send Email"
-				footer={null}
-				destroyOnClose
-				onCancel={() => {
-					setEmailModal(false);
-				}}
-			>
-				<Form
-					form={form}
-					size="large"
-					name="createOrder"
-					onFinish={(value) => {
-						handleSendEmail(value, currentOrder, currentOperation)
-						setEmailModal(false);
-						
-					}}
-				>
-					<Form.Item name="orderNum" label="Order Number">
-						<input style={{ width: 300 }} />
-					</Form.Item>
-					<Form.Item name="orderType" label="Order Type">
-						<input style={{ width: 300 }} />
-					</Form.Item>
-					<Form.Item name="email" label="Email">
-						<input style={{ width: 300 }} />
-					</Form.Item>
-					<Button
-						type="primary"
-						size="large"
-						htmlType="submit"
-					>
-						Send Email
-					</Button>
-				</Form>
-			</Modal> */}
 		</>
 	);
 };
 
-export default Orders;
+export default OrdersUnpaid;

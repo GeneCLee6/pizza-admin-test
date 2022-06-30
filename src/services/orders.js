@@ -32,19 +32,26 @@ export const requestCurrentOrders = async () => {
 	return data;
 };
 
+export const requestUnpaidOrders = async () => {
+	const url = "/orders/unpaid";
+
+	const { data } = await get(url);
+	return data;
+};
+
 export const requestCreateNewOrder = ({
 	isPhoneOrder,
 	invoiceLang,
 	...rest
 }) => {
-	const url = `/orders/dashboard?isPhoneOrder=${isPhoneOrder}&invoiceLang=${invoiceLang}`;
+	const url = `/orders/dashboard?isPhoneOrder=${isPhoneOrder}&invoiceLang=${invoiceLang}`; //go to POST(":id")
 	const data = { ...rest };
 
 	return post(url, data).then((response) => response.data);
 };
 
 export const requestCreatePhoneNewOrder = (payload) => {
-	const url = `/orders`;
+	const url = "/orders";
 	const data = { ...payload };
 	return post(url, data).then((response) => response.data);
 };
@@ -75,6 +82,12 @@ export const requestEditOrder = ({ _id, ...rest }) => {
 	return put(url, data).then((response) => response.data);
 };
 
+export const requestEditPrintedOrder = (_id) => {
+	const url = `/orders/${_id}/printed`;
+
+	return put(url).then((response) => response.data);
+};
+
 export const requestCancelOrder = (id) => {
 	const url = `/orders/${id}/cancelled`;
 
@@ -95,8 +108,7 @@ export const requestSendExcelReport = () => {
 
 export const sendEmail = (value, id) => {
 	const url = "/orders/sendEmail";
-	const data = {... value};
+	const data = { ...value };
 
-	console.log(data)
 	return post(url, data).then((response) => response.data);
-}
+};
